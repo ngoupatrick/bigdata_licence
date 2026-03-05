@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Global Big Data Monitor</title>
+    <link href="https://cdn.jsdelivr.net" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: #f1f5f9; font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; height: 100vh; margin: 0; }
+        .dashboard-card { background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 900px; margin: auto; }
+        .stat-box { border-left: 4px solid #38bdf8; padding-left: 15px; }
+        .stat-label { color: #94a3b8; text-transform: uppercase; font-size: 0.75rem; font-weight: 700; }
+        .stat-value { font-size: 2.5rem; font-weight: 800; color: #38bdf8; }
+        .chart-container { height: 350px; position: relative; margin-top: 20px; width: 100%; min-height: 350px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div><h2 class="fw-bold mb-0">Live Pipeline Monitor</h2><small class="text-info">Redpanda Console Active</small></div>
+                <div class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2">STABLE</div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="stat-box">
+                        <div class="stat-label">Total Global (Jour-Postgres)</div>
+                        <div id="global-total" class="stat-value">0,00 €</div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="chart-container">
+                        <canvas id="bigDataChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts chargés AVANT la logique -->
+    <script src="https://cdn.jsdelivr.net"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM Chargé, initialisation...");
+            
+            const canvas = document.getElementById('bigDataChart');
+            if (!canvas) { console.error("Canvas introuvable !"); return; }
+
+            const ctx = canvas.getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Agence 1', 'Agence 2'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#38bdf8', '#fbbf24'],
+                        borderRadius: 10,
+                        barThickness: 55
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false, // Désactivé pour le debug initial
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#f1f5f9' } }
+                    }
+                }
+            });
+
+            const socket = io();
+            socket.on('updateGraph', (data) => {
+                console.log("JS Client - Data reçue :", data);
+                let valuesMap = { 'agence1': 0, 'agence2': 0 };
+                let totalSum = 0;
+
+                data.forEach(item => {
+                    const val = parseFloat(item.value) || 0;
+                    totalSum += val;
+                    const key = item.label.toLowerCase().replace(/\s/g, '');
+                    if (valuesMap.hasOwnProperty(key)) { valuesMap[key] = val; }
+                });
+
+                chart.data.datasets[0].data = [valuesMap['agence1'], valuesMap['agence2']];
+                chart.update();
+
+                document.getElementById('global-total').innerText = 
+                    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(totalSum);
+            });
+        });
+    </script>
+</body>
+</html>

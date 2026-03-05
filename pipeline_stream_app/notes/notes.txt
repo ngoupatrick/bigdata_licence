@@ -1,0 +1,38 @@
+# nettoyage des volumes
+cd /home/patrick/Téléchargements/ressources/
+
+sudo rm -rf redpanda/redpanda/*
+
+sudo rm -rf postgres_agence/globale/*
+
+sudo rm -rf postgres_agence/pgadmin/*
+
+sudo rm -rf mysql_agence/agence_un/*
+
+sudo rm -rf mysql_agence/agence_deux/*
+
+# start docker
+docker compose up -d
+
+# stop docker
+docker compose down -v --remove-orphans
+
+# initialiser la bd postgres
+docker exec -i $(docker compose ps -q postgres-globale) psql -U user -d global_db < ./postgres-init/init.sql
+
+# mysql commands
+mysql -uroot -pmysql
+use nanp_db;
+
+# insert query (mysql)
+INSERT INTO nanp_db.ventes (agence_id, produit, montant) VALUES ('agence1', 'Test agence1 Redpanda', 99);
+INSERT INTO nanp_db.ventes (agence_id, produit, montant) VALUES ('agence2', 'Test agence2 Redpanda', 95);
+
+# select postgres
+select * from global_db.public.ventes_globales;
+
+# demarrer les connecteur
+curl -X POST http://localhost:8183/connectors -H "Content-Type: application/json" -d @agence-un-source-connector.json
+
+# demarrer le sink
+curl -X POST http://localhost:8183/connectors -H "Content-Type: application/json" -d @agence-globale-sink-connector.json
