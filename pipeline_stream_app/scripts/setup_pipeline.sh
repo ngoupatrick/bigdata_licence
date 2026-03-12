@@ -61,6 +61,3 @@ curl -i -X POST -H "Content-Type:application/json" \
 
 
 echo -e "\n🔥 PIPELINE OPÉRATIONNEL !"
-
-# demarrer le sink
-# curl -X POST http://localhost:8183/connectors -H "Content-Type: application/json" -d @agence-globale-sink-connector.json
