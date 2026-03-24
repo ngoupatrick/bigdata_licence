@@ -17,7 +17,7 @@ services:
       SPARK_USER: spark
     # Commande explicite pour l'image officielle
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
-    ## Launch ass master and also worker node
+    ## Launch as master and also worker node
     #entrypoint: >
     #  /bin/bash -c "
     #  /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master &
