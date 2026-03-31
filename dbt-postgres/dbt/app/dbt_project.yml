@@ -1,0 +1,30 @@
+name: 'first_toto' # project name
+version: '1.0.0'
+config-version: 2
+
+profile: 'tyrok'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+flags:
+  require_certificate_validation: True
+
+clean-targets:         # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+models: # folder 'models'
+  first_toto:
+    # Config indicated by + and applies to all files under models/bronze/
+    bronze:
+      +materialized: table # all .sql file under 'models/bronze' folder must be by default, table
+      +tags: ['bronze'] # all .sql file under 'models/bronze' folder will have the tag 'fact'
+    ## Config indicated by + and applies to all files under models/bronze/
+    #marts:
+    #  +materialized: table # all .sql file under 'models/marts' folder must be by default, table
+    +materialized: table # all .sql file under 'models' folder must be by default, table

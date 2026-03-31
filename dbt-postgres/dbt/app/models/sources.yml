@@ -1,0 +1,10 @@
+version: 2
+sources:
+  - name: boutique_a_source
+    database: tyrok
+    schema: operations
+    tables:
+      - name: deliverer
+      - name: client
+      - name: product
+      - name: sales
