@@ -14,25 +14,25 @@
 
 WITH base_data AS (
     SELECT
-        id,
-        code,
-        name,
-        pu_price,
-        create_at,
-        COALESCE(status, TRUE) as status,
+        id::INTEGER as id,
+        code::VARCHAR(50) as code,
+        name::VARCHAR(255) as name,
+        pu_price::DECIMAL(10, 2) as pu_price,
+        create_at::TIMESTAMP(6) as create_at,
+        COALESCE(status, TRUE)::BOOLEAN as status,
         CAST(current_timestamp AS TIMESTAMP(6)) as ingested_at,
         'boutique_a' as source
     FROM {{ source('boutique_a_source', 'product') }}
 )
 
 SELECT
-    *,
+    *
     -- Extraction des composants temporels
-    EXTRACT(YEAR FROM ingested_at) as ingested_year,
-    EXTRACT(MONTH FROM ingested_at) as ingested_month,
-    EXTRACT(DAY FROM ingested_at)   as ingested_day,
-    EXTRACT(HOUR FROM ingested_at)  as ingested_hour,
-    EXTRACT(MINUTE FROM ingested_at) as ingested_minute
+    -- EXTRACT(YEAR FROM ingested_at) as ingested_year,
+    -- EXTRACT(MONTH FROM ingested_at) as ingested_month,
+    -- EXTRACT(DAY FROM ingested_at)   as ingested_day,
+    -- EXTRACT(HOUR FROM ingested_at)  as ingested_hour,
+    -- EXTRACT(MINUTE FROM ingested_at) as ingested_minute
 FROM base_data
 
 {% if is_incremental() %}

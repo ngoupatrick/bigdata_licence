@@ -24,3 +24,8 @@ sources:
       - name: silver_client
       - name: silver_product
       - name: silver_sales
+  - name: boutique_a_ia
+    database: tyrok
+    schema: ia_schema
+    tables:
+      - name: pred_deliverer_next_month

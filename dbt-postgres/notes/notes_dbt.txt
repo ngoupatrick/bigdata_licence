@@ -1,44 +1,8 @@
-source:
-    nessie.agence.client 
-    nessie.agence.product
-    nessie.agence.sales
-    query:
-        docker exec -it trino trino --catalog nessie
-        SELECT * FROM nessie.agence.client;
-dest:
-    dev:
-        dbt.test_schema.fact_client
-        dbt.test_schema.fact_product
-        dbt.test_schema.marts_sales
-        query:
-            docker exec -it trino trino --catalog dbt
-            SELECT * FROM dbt.test_schema.fact_client;
-            SELECT * FROM dbt.test_schema.fact_product;
-            SELECT * FROM dbt.test_schema.marts_sales;
-
-            SELECT * FROM dbt.test_schema.marts_client_stats;
-            SELECT * FROM dbt.test_schema.marts_monthly_growth;
-            SELECT * FROM dbt.test_schema.marts_product_performance;
-            SELECT * FROM dbt.test_schema.marts_client_rfm;
-        clean:
-            docker exec -it trino trino --catalog dbt
-            DROP SCHEMA dbt.test_schema CASCADE;
-
-            -- In MINIO
-            remove marts-bucket/warehouse/test_schema
-
-
-    prod:
-        dbt.prod_schema.client
-step 0:
-    create bucket:
-        marts-bucket
-
-Step 1:
-    docker exec -it trino trino --catalog dbt
-    CREATE SCHEMA IF NOT EXISTS dbt.test_schema;
-    CREATE SCHEMA IF NOT EXISTS dbt.prod_schema;
-
+some commands:
+    dbt run --select bronze -t dev-bronze
+    dbt run --select bronze -t dev-bronze
+    dbt run --select gold -t dev-gold
+    
 step 2:
     docker exec -it dbt bash
     cd /usr/app
@@ -59,10 +23,3 @@ step 2:
     dbt run --vars '{target_branch: dev}' # Si vous avez paramétré votre projet pour pointer vers une branche Nessie spécifique via une variable.
     dbt clean # Supprime les dossiers target/ et dbt_packages/
     dbt deps # Télécharge les packages (comme dbt-utils) définis dans votre fichier packages.yml
-
-step 3:
-    -- 5. croner pour optimisation
-    -- Fusionne les petits fichiers en fichiers plus gros (à faire périodiquement)
-    ALTER TABLE dbt.test_schema.fact_client EXECUTE optimize;
-    -- Nettoie les anciens snapshots pour alléger MariaDB/Nessie
-    ALTER TABLE dbt.test_schema.fact_client EXECUTE expire_snapshots(retention_threshold => '2d');

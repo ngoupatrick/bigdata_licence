@@ -27,5 +27,8 @@ models: # folder 'models'
     gold:
       +materialized: view # all .sql file under 'models/gold' folder must be by default, table
       +tags: ['gold'] # all .sql file under 'models/gold' folder will have the tag 'gold'
-    ## Config indicated by + and applies to all files under models/gold/    
+    marts:
+      +materialized: view # all .sql file under 'models/marts' folder must be by default, table
+      +tags: ['marts'] # all .sql file under 'models/marts' folder will have the tag 'marts'
+    ## Config indicated by + and applies to all files under models/marts/    
     +materialized: table # all .sql file under 'models' folder must be by default, table
